@@ -1,10 +1,12 @@
 import { StyleSheet, View, KeyboardAvoidingView, Platform } from "react-native";
 import { useEffect, useState } from "react";
-//import { Bubble, GiftedChat, InputToolbar } from "react-native-gifted-chat";
-//import {onSnapshot, collection, orderBy, query, addDoc, } from "firebase/firestore";
-//import AsyncStorage from "@react-native-async-storage/async-storage";
+import { Bubble, GiftedChat, InputToolbar } from "react-native-gifted-chat";
+import { onSnapshot, collection, orderBy, query, addDoc } from "firebase/firestore";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 //import CustomActions from "./CustomActions";
-//import MapView from "react-native-maps";
+import MapView from "react-native-maps";
+import { createStackNavigator } from "react-navigation-stack";
+
 
 const Chat = ({ db, storage, route, navigation, isConnected }) => {
   const { name, color, userID } = route.params;
@@ -15,10 +17,11 @@ const Chat = ({ db, storage, route, navigation, isConnected }) => {
   useEffect(() => {
     // Set screen title according to given name from prop
     navigation.setOptions({ title: name });
-/**
- * If the user is connected to the internet, register a listener to the database
- * to read messages. If the user is offline, load messages from offline storage.
- */
+
+    /**
+     * If the user is connected to the internet, register a listener to the database
+     * to read messages. If the user is offline, load messages from offline storage.
+     */
     if (isConnected === true) {
       // Unregister current onSnapshot() listener to avoid registering multiple
       // listeners when useEffect code is re-executed.
@@ -49,10 +52,7 @@ const Chat = ({ db, storage, route, navigation, isConnected }) => {
     };
   }, [isConnected]);
 
-  /**  Save messages to offline storage
-  //Array of messages to save to offline storage
   // Save messages to offline storage
-  */
   const cacheMessages = async (messagesToCache) => {
     try {
       await AsyncStorage.setItem("chat", JSON.stringify(messagesToCache));
@@ -68,8 +68,8 @@ const Chat = ({ db, storage, route, navigation, isConnected }) => {
   };
 
   // Append new message to firestore
-  const onSend = (newMessages) => {
-    addDoc(collection(db, "messages"), newMessages[0]);
+  const onSend = async (newMessages) => {
+    await addDoc(collection(db, "messages"), newMessages[0]);
   };
 
   // Customize chat bubble
@@ -88,7 +88,7 @@ const Chat = ({ db, storage, route, navigation, isConnected }) => {
     );
   };
 
-  // Only render text iput toolbar when online
+  // Only render text input toolbar when online
   const renderInputToolbar = (props) => {
     if (isConnected) return <InputToolbar {...props} />;
     else return null;
@@ -139,7 +139,7 @@ const Chat = ({ db, storage, route, navigation, isConnected }) => {
         renderInputToolbar={renderInputToolbar}
         renderActions={renderCustomActions}
         renderCustomView={renderCustomView}
-        onSend={(messages) => onSend(messages)}
+        onSend={onSend}
         user={{ _id: userID, name }}
       />
       {Platform.OS === "android" ? (
@@ -149,49 +149,10 @@ const Chat = ({ db, storage, route, navigation, isConnected }) => {
   );
 };
 
-<ImageBackground source={require('./assets/background_image.jpg')} style={styles.container}>
-      {/* Color options */}
-      <View style={styles.colorOptionsContainer}>
-        {renderColorOptions()}
-      </View>
-
-      {/* Chat */}
-      <GiftedChat
-        messages={messages}
-        renderBubble={renderBubble}
-        renderInputToolbar={renderInputToolbar}
-        renderActions={renderCustomActions}
-        renderCustomView={renderCustomView}
-        onSend={(messages) => onSend(messages)}
-        user={{ _id: userID, name }}
-      />
-      {Platform.OS === "android" ? (
-        <KeyboardAvoidingView behavior="height" />
-      ) : null}
-    </ImageBackground>
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  colorOptionsContainer: {
-    flexDirection: "row",
-    justifyContent: "space-around",
-    alignItems: "center",
-    height: 50,
-    marginBottom: 10,
-  },
-  colorOption: {
-    width: 30,
-    height: 30,
-    borderRadius: 15,
-  },
 });
 
 export default Chat;
-
-
-
-
-
-
