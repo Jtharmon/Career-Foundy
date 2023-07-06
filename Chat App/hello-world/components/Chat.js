@@ -5,7 +5,8 @@ import { onSnapshot, collection, orderBy, query, addDoc } from "firebase/firesto
 import AsyncStorage from "@react-native-async-storage/async-storage";
 //import CustomActions from "./CustomActions";
 import MapView from "react-native-maps";
-import { createStackNavigator } from "react-navigation-stack";
+import { createStackNavigator } from "@react-navigation/stack";
+
 
 
 const Chat = ({ db, storage, route, navigation, isConnected }) => {
